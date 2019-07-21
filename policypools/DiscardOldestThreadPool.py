@@ -1,6 +1,6 @@
 from threading import Thread
 
-from pools.AbstractThreadPool import AbstractThreadPool
+from policypools.AbstractThreadPool import AbstractThreadPool
 
 
 class DiscardOldestThreadPool(AbstractThreadPool):
@@ -19,6 +19,6 @@ class DiscardOldestThreadPool(AbstractThreadPool):
         :param thread: the given thread to run
         :return: None
         """
-        if self.__thread_q.full():
-            self.__thread_q.get(block=False)
-        self.__thread_q.put(thread)
+        if self._thread_q.full():
+            self._thread_q.get(block=False)
+        self._thread_q.put(thread)

@@ -1,6 +1,6 @@
 from threading import Thread
 
-from pools.AbstractThreadPool import AbstractThreadPool
+from policypools.AbstractThreadPool import AbstractThreadPool
 
 
 class DiscardNewestThreadPool(AbstractThreadPool):
@@ -19,5 +19,5 @@ class DiscardNewestThreadPool(AbstractThreadPool):
         :param thread: the given thread to run
         :return: None
         """
-        if not self.__thread_q.full():
-            self.__thread_q.put(thread)
+        if not self._thread_q.full():
+            self._thread_q.put(thread)

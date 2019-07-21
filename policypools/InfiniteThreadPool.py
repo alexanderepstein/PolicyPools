@@ -1,7 +1,7 @@
 from threading import Thread
 from os import cpu_count
 
-from pools.AbstractThreadPool import AbstractThreadPool
+from policypools.AbstractThreadPool import AbstractThreadPool
 
 
 class InfiniteThreadPool(AbstractThreadPool):
@@ -18,4 +18,4 @@ class InfiniteThreadPool(AbstractThreadPool):
         :param thread: the given thread to run
         :return: None
         """
-        self.__thread_q.put(thread)
+        self._thread_q.put(thread)

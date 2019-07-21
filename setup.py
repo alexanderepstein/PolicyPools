@@ -5,11 +5,11 @@ from setuptools import find_packages, setup
 
 # Package meta-data.
 NAME = 'policypools'
-DESCRIPTION = 'Provides thread pools with policies'
+DESCRIPTION = 'Provides thread policypools with policies'
 URL = 'https://github.com/alexanderepstein/policypools'
 EMAIL = 'epsteina@wit.edu'
 AUTHOR = 'Alexander Epstein'
-VERSION = '0.0.1'
+VERSION = '0.0.5'
 
 long_description = "For information on this package refer to the github: %s" % URL
 # What packages are required for this module to be executed?
@@ -26,7 +26,7 @@ setup(
     url=URL,
     packages=find_packages(exclude=('tests',)),
     entry_points={},
-    keywords=['multithreading', 'policy', 'thread-pool', 'thread-pools', 'policies'],  # arbitrary keywords
+    keywords=['multithreading', 'policy', 'thread-pool', 'thread-policypools', 'policies'],  # arbitrary keywords
     install_requires=required,
     include_package_data=True,
     license='MIT',

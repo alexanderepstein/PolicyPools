@@ -15,12 +15,12 @@ class AbstractThreadPool:
         assert max_q_size >= 1 and num_workers >= 1
         self.__max_size = max_q_size
         self.__num_workers = num_workers
-        self.__thread_q = queue.Queue(self.__max_size)
+        self._thread_q = queue.Queue(self.__max_size)
         self.__workers = []
+        self.__terminate = False
         self.__manager_thread = Thread(target=self.__start)
         self.__manager_thread.setDaemon(True)
         self.__manager_thread.start()
-        self.__terminate = False
 
     def terminate(self):
         """
@@ -43,7 +43,7 @@ class AbstractThreadPool:
             for i, thread in enumerate(self.__workers):
                 if not thread.is_alive():
                     try:
-                        self.__workers[i] = self.__thread_q.get(block=False)
+                        self.__workers[i] = self._thread_q.get(block=False)
                         filled_dead_thread = True
                         self.__workers[i].setDaemon(True)
                         self.__workers[i].start()
@@ -53,7 +53,7 @@ class AbstractThreadPool:
             if not filled_dead_thread:
                 if self.__num_workers > len(self.__workers):
                     try:
-                        self.__workers.append(self.__thread_q.get(block=False))
+                        self.__workers.append(self._thread_q.get(block=False))
                         self.__workers[-1].setDaemon(True)
                         self.__workers[-1].start()
                     except queue.Empty:

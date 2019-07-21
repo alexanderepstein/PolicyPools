@@ -1,6 +1,6 @@
 from threading import Thread
 
-from pools.AbstractThreadPool import AbstractThreadPool
+from policypools.AbstractThreadPool import AbstractThreadPool
 
 
 class BoundedThreadPool(AbstractThreadPool):
@@ -20,4 +20,4 @@ class BoundedThreadPool(AbstractThreadPool):
         :param thread: the given thread to run
         :return: None
         """
-        self.__thread_q.put(thread, block=False)
+        self._thread_q.put(thread, block=False)
