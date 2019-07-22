@@ -1,10 +1,9 @@
-from abc import abstractmethod
-from concurrent.futures import ThreadPoolExecutor
-from concurrent.futures import _base
+from abc import abstractmethod, ABC
+from concurrent.futures import _base, ThreadPoolExecutor
 from concurrent.futures.thread import _WorkItem
 
 
-class AbstractThreadPoolExecutor(ThreadPoolExecutor):
+class AbstractThreadPoolExecutor(ABC, ThreadPoolExecutor):
 
     def __init__(self, max_q_size: int = 1, max_workers: int = None, thread_name_prefix: str = ''):
         """

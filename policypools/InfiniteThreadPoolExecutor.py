@@ -15,7 +15,7 @@ class InfiniteThreadPool(AbstractThreadPoolExecutor):
         with self._shutdown_lock:
             if self._shutdown:
                 raise RuntimeError('cannot schedule new futures after shutdown')
-            future, worker = super().submit(fn, args, kwargs)
+            future, worker = super().submit(fn, *args, *kwargs)
             self._work_queue.put(worker)
             self._adjust_thread_count()
             return future

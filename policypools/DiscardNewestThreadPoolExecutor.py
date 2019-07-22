@@ -15,6 +15,6 @@ class DiscardNewestThreadPoolExecutor(BoundedThreadPoolExecutor):
 
     def submit(self, fn, *args, **kwargs):
         if self._work_queue.qsize() < self._max_size:
-            return super().submit(fn, args, kwargs)
+            return super().submit(fn, *args, *kwargs)
 
     submit.__doc__ = BoundedThreadPoolExecutor.submit.__doc__
