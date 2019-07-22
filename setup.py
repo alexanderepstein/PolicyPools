@@ -5,11 +5,11 @@ from setuptools import find_packages, setup
 
 # Package meta-data.
 NAME = 'policypools'
-DESCRIPTION = 'Provides thread policypools with policies'
+DESCRIPTION = 'Provides thread pools with policies'
 URL = 'https://github.com/alexanderepstein/policypools'
 EMAIL = 'epsteina@wit.edu'
 AUTHOR = 'Alexander Epstein'
-VERSION = '0.0.5'
+VERSION = '0.0.7'
 
 long_description = "For information on this package refer to the github: %s" % URL
 # What packages are required for this module to be executed?
