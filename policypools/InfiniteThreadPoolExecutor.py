@@ -19,7 +19,7 @@ class InfiniteThreadPoolExecutor(AbstractThreadPoolExecutor):
                 raise RuntimeError('cannot schedule new futures after shutdown')
             future, worker, executing = super().submit(fn, *args, *kwargs)
             if not executing:
-                self._pre_work_queue.put(worker, block=False)
+                self._pre_work_queue.append(worker)
             return future
 
     submit.__doc__ = AbstractThreadPoolExecutor.submit.__doc__

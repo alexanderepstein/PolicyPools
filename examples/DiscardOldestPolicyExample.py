@@ -15,7 +15,7 @@ def threaded_func(number):
 
 
 if __name__ == '__main__':
-    iter_times = 100000
+    iter_times = 20
     # Use with for safe closing of threads
     with DiscardOldestThreadPoolExecutor(max_q_size=5, max_workers=3) as policy_thread_pool:
         iterable = range(iter_times)  # Creating the parameter that will be iterated over
@@ -25,12 +25,10 @@ if __name__ == '__main__':
         # Needed in case the future was discarded before it ran
         try:
             thread_number, time_taken, result = future.result()  # Get the result of that future
+            print(f"Thread {thread_number} finished, Future result: {result}, Total Time: {time_taken}")
         except ValueError as ex:
             print(ex)
             pass
-        if result is not None:
-            # A submitted thread may return None
-            print(f"Thread {thread_number} finished, Future result: {result}, Total Time: {time_taken}")
         print("\nTesting map")
         map_object = policy_thread_pool.map(threaded_func, iterable)  # Mapping the function over each value in iterable
         for thread_number, time_taken, result in map_object:
@@ -41,34 +39,28 @@ Output:
 Testing submit
 Thread -1 started
 Thread -1 finished
-Thread -1 finished, Future result: 1, Total Time: 1.0051846504211426
+Thread -1 finished, Future result: 1, Total Time: 1.0008816719055176
 
 Testing map
 Thread 0 started
 Thread 1 started
 Thread 0 finished
+Thread 15 started
+Thread 0 Future result: 0, Total Time: 1.0014240741729736
 Thread 1 finished
-Thread 60631 started
-Thread 60634 started
-Thread 0 Future result: 0, Total Time: 1.00758957862854
-Thread 1 Future result: 1, Total Time: 1.0077106952667236
-Thread 60631 finished
-Thread 99995 started
-Thread 60634 finished
-Thread 99996 started
-Thread 60631 Future result: 3676118161, Total Time: 1.0035748481750488
-Thread 60634 Future result: 3676481956, Total Time: 1.00374436378479
-Thread 99996 finished
-Thread 99997 started
-Thread 99995 finished
-Thread 99998 started
-Thread 99995 Future result: 9999000025, Total Time: 1.0059700012207031
-Thread 99996 Future result: 9999200016, Total Time: 1.0056214332580566
-Thread 99998 finished
-Thread 99999 started
-Thread 99997 finished
-Thread 99997 Future result: 9999400009, Total Time: 1.0017688274383545
-Thread 99998 Future result: 9999600004, Total Time: 1.0013201236724854
-Thread 99999 finished
-Thread 99999 Future result: 9999800001, Total Time: 1.0040488243103027
+Thread 16 started
+Thread 1 Future result: 1, Total Time: 1.0014240741729736
+Thread 16 finished
+Thread 17 started
+Thread 15 finished
+Thread 18 started
+Thread 15 Future result: 225, Total Time: 1.0008721351623535
+Thread 16 Future result: 256, Total Time: 1.0008721351623535
+Thread 18 finished
+Thread 17 finished
+Thread 19 started
+Thread 17 Future result: 289, Total Time: 1.000530481338501
+Thread 18 Future result: 324, Total Time: 1.000530481338501
+Thread 19 finished
+Thread 19 Future result: 361, Total Time: 1.0011065006256104
 """

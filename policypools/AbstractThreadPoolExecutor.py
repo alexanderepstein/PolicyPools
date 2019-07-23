@@ -1,9 +1,8 @@
-import queue
 import time
 from abc import abstractmethod, ABC
+from collections import deque
 from concurrent.futures import ThreadPoolExecutor, Future
 from concurrent.futures.thread import _WorkItem
-from queue import Queue
 
 
 class AbstractThreadPoolExecutor(ABC, ThreadPoolExecutor):
@@ -16,7 +15,7 @@ class AbstractThreadPoolExecutor(ABC, ThreadPoolExecutor):
         """
         super(AbstractThreadPoolExecutor, self).__init__(max_workers=max_workers, thread_name_prefix=thread_name_prefix)
         self._max_q_size = max_q_size
-        self._pre_work_queue = Queue(maxsize=self._max_q_size)
+        self._pre_work_queue = deque(maxlen=max_q_size)
 
     @abstractmethod
     def submit(self, fn, *args, **kwargs):
@@ -47,10 +46,10 @@ class AbstractThreadPoolExecutor(ABC, ThreadPoolExecutor):
             if self._shutdown:
                 raise RuntimeError('cannot schedule new futures after shutdown')
             try:
-                worker = self._pre_work_queue.get(block=False)
-                self._work_queue.put(worker)
+                worker = self._pre_work_queue.popleft()
+                self._work_queue.put(worker, block=False)
                 self._adjust_thread_count()
-            except queue.Empty:
+            except IndexError:
                 pass
 
     def map(self, fn, *iterables, timeout=None, chunksize=1):
@@ -59,7 +58,7 @@ class AbstractThreadPoolExecutor(ABC, ThreadPoolExecutor):
 
         # Just adding the filter to get rid of the futures that were not actually submitted and to the futures that
         # were submitted successfully, but were removed before they ran
-        fs = list(filter(lambda x: x is not None and x._state != PolicyFuture.INVALID_STATE,
+        fs = list(filter(lambda x: x._state != PolicyFuture.INVALID_STATE,
                          [self.submit(fn, *args) for args in zip(*iterables)]))
 
         # Yield must be hidden in closure so that the futures are submitted

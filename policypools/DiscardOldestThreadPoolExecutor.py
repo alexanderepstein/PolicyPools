@@ -15,8 +15,8 @@ class DiscardOldestThreadPoolExecutor(BoundedThreadPoolExecutor):
                                                               thread_name_prefix=thread_name_prefix)
 
     def submit(self, fn, *args, **kwargs):
-        if self._pre_work_queue.full():
-            worker = self._pre_work_queue.get(block=False)
+        if len(self._pre_work_queue) >= self._max_q_size:
+            worker = self._pre_work_queue.popleft()
             worker.future._state = PolicyFuture.INVALID_STATE
         return super().submit(fn, *args, *kwargs)
 

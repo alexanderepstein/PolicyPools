@@ -1,5 +1,6 @@
 import queue
 
+from policypools.AbstractThreadPoolExecutor import PolicyFuture
 from policypools.BoundedThreadPoolExecutor import BoundedThreadPoolExecutor
 
 
@@ -16,9 +17,9 @@ class DiscardNewestThreadPoolExecutor(BoundedThreadPoolExecutor):
                                                               thread_name_prefix=thread_name_prefix)
 
     def submit(self, fn, *args, **kwargs):
-        try:
-            return super().submit(fn, *args, *kwargs)
-        except queue.Full:
-            return None
+        if len(self._pre_work_queue) >= self._max_q_size:
+            worker = self._pre_work_queue.pop()
+            worker.future._state = PolicyFuture.INVALID_STATE
+        return super().submit(fn, *args, *kwargs)
 
     submit.__doc__ = BoundedThreadPoolExecutor.submit.__doc__

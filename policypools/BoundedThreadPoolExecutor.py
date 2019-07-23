@@ -20,7 +20,10 @@ class BoundedThreadPoolExecutor(AbstractThreadPoolExecutor):
                 raise RuntimeError('cannot schedule new futures after shutdown')
             future, worker, executing = super().submit(fn, *args, *kwargs)
             if not executing:
-                self._pre_work_queue.put(worker, block=False)
+                if not len(self._pre_work_queue) >= self._max_q_size:
+                    self._pre_work_queue.append(worker)
+                else:
+                    raise RuntimeError("Pre-work queue is full")
             return future
 
     submit.__doc__ = AbstractThreadPoolExecutor.submit.__doc__
