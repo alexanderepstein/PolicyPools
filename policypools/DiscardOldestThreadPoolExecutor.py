@@ -1,3 +1,4 @@
+from policypools.AbstractThreadPoolExecutor import PolicyFuture
 from policypools.BoundedThreadPoolExecutor import BoundedThreadPoolExecutor
 
 
@@ -16,7 +17,7 @@ class DiscardOldestThreadPoolExecutor(BoundedThreadPoolExecutor):
     def submit(self, fn, *args, **kwargs):
         if self._pre_work_queue.full():
             worker = self._pre_work_queue.get(block=False)
-            worker.future._state = DiscardOldestThreadPoolExecutor.FUTURE_INVALID_STATE
+            worker.future._state = PolicyFuture.INVALID_STATE
         return super().submit(fn, *args, *kwargs)
 
     submit.__doc__ = BoundedThreadPoolExecutor.submit.__doc__

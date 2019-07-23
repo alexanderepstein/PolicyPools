@@ -7,7 +7,7 @@ class InfiniteThreadPoolExecutor(AbstractThreadPoolExecutor):
 
     def __init__(self, thread_name_prefix: str = ''):
         """
-        Infinite thread pool, very large queue size and num workers set based off computer specs
+        Infinite thread pool, infinite queue size and num workers set based off computer specs
         """
         super(InfiniteThreadPoolExecutor, self).__init__(max_q_size=0,
                                                          max_workers=cpu_count() * 10,

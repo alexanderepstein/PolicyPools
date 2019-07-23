@@ -1,14 +1,12 @@
 import queue
 import time
 from abc import abstractmethod, ABC
-from concurrent.futures import _base, ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, Future
 from concurrent.futures.thread import _WorkItem
 from queue import Queue
 
 
 class AbstractThreadPoolExecutor(ABC, ThreadPoolExecutor):
-
-    FUTURE_INVALID_STATE = "INVALID"
 
     def __init__(self, max_q_size: int = 1, max_workers: int = None, thread_name_prefix: str = ''):
         """
@@ -30,7 +28,7 @@ class AbstractThreadPoolExecutor(ABC, ThreadPoolExecutor):
         :return: Future for the submitted thread
         """
         e = False
-        f = _base.Future()
+        f = PolicyFuture()
         f.add_done_callback(self.on_task_complete)
         w = _WorkItem(f, fn, args, kwargs)
         if len(self._threads) < self._max_workers:
@@ -56,29 +54,12 @@ class AbstractThreadPoolExecutor(ABC, ThreadPoolExecutor):
                 pass
 
     def map(self, fn, *iterables, timeout=None, chunksize=1):
-        """
-        Returns an iterator equivalent to map(fn, iter).
-        :param fn: A callable that will take as many arguments as there are
-                passed iterables.
-        :param iterables: The arguments to map the function over.
-        :param timeout: The maximum number of seconds to wait. If None, then there
-                is no limit on the wait time.
-        :param chunksize:  The size of the chunks the iterable will be broken into
-                before being passed to a child process. This argument is only
-                used by ProcessPoolExecutor; it is ignored by
-                ThreadPoolExecutor.
-        :return: An iterator equivalent to: map(func, *iterables) but the calls may
-            be evaluated out-of-order.
-        :raises: TimeoutError: If the entire result iterator could not be generated
-                before the given timeout.
-        :raises: Exception: If fn(*args) raises for any values.
-        """
         if timeout is not None:
             end_time = timeout + time.monotonic()
 
         # Just adding the filter to get rid of the futures that were not actually submitted and to the futures that
         # were submitted successfully, but were removed before they ran
-        fs = list(filter(lambda x: x is not None and x._state != AbstractThreadPoolExecutor.FUTURE_INVALID_STATE,
+        fs = list(filter(lambda x: x is not None and x._state != PolicyFuture.INVALID_STATE,
                          [self.submit(fn, *args) for args in zip(*iterables)]))
 
         # Yield must be hidden in closure so that the futures are submitted
@@ -97,5 +78,19 @@ class AbstractThreadPoolExecutor(ABC, ThreadPoolExecutor):
                 for future in fs:
                     future.cancel()
         return result_iterator()
+    map.__doc__ = ThreadPoolExecutor.map.__doc__
 
 
+class PolicyFuture(Future):
+
+    INVALID_STATE = "INVALID"
+
+    def __init__(self):
+        super(PolicyFuture, self).__init__()
+
+    def result(self, timeout=None):
+        if self._state == PolicyFuture.INVALID_STATE:
+            raise ValueError("Future did not actually ever run")
+        else:
+            return super().result(timeout=timeout)
+    result.__doc__ = Future.result.__doc__
