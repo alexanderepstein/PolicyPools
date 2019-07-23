@@ -9,7 +9,7 @@ DESCRIPTION = 'Provides thread pools with policies'
 URL = 'https://github.com/alexanderepstein/policypools'
 EMAIL = 'epsteina@wit.edu'
 AUTHOR = 'Alexander Epstein'
-VERSION = '0.0.9'
+VERSION = '0.0.10'
 
 long_description = "For information on this package refer to the github: %s" % URL
 # What packages are required for this module to be executed?
