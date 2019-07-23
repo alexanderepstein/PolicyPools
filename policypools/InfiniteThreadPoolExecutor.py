@@ -1,6 +1,6 @@
 from os import cpu_count
 
-from policypools.AbstractThreadPool import AbstractThreadPoolExecutor
+from policypools.AbstractThreadPoolExecutor import AbstractThreadPoolExecutor
 
 
 class InfiniteThreadPoolExecutor(AbstractThreadPoolExecutor):
@@ -9,16 +9,17 @@ class InfiniteThreadPoolExecutor(AbstractThreadPoolExecutor):
         """
         Infinite thread pool, very large queue size and num workers set based off computer specs
         """
-        super(InfiniteThreadPoolExecutor, self).__init__(max_workers=cpu_count() * 10,
+        super(InfiniteThreadPoolExecutor, self).__init__(max_q_size=0,
+                                                         max_workers=cpu_count() * 10,
                                                          thread_name_prefix=thread_name_prefix)
 
     def submit(self, fn, *args, **kwargs):
         with self._shutdown_lock:
             if self._shutdown:
                 raise RuntimeError('cannot schedule new futures after shutdown')
-            future, worker = super().submit(fn, *args, *kwargs)
-            self._work_queue.put(worker)
-            self._adjust_thread_count()
+            future, worker, executing = super().submit(fn, *args, *kwargs)
+            if not executing:
+                self._pre_work_queue.put(worker, block=False)
             return future
 
     submit.__doc__ = AbstractThreadPoolExecutor.submit.__doc__
