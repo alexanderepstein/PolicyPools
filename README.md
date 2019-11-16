@@ -2,9 +2,7 @@
 
 # PolicyPools
 
-<img src="https://i.postimg.cc/2SnB0272/threads-fixed.png">
-
-#### Thread Pool Excecutors With Policies
+#### Thread and Process Pools With Policies
 
 </div>
 
@@ -15,49 +13,43 @@ pip3 install policypools
 ```
 
 ## Usage
+Similar to a Pool executor, in the fact that you submit jobs to be done by the pool. In this case however all jobs must be background tasks
+as submissions do not return results. This library uses policies to determine how the cases will be handled when we have maximum concurrent workers 
+already running and the pre work queue is full.
 
-Used almost identically to a typical ThreadPoolExecutor, but with a policy. The selected policy will change behavior of the submit call made to the given Policy Thread Pool Executor.
+Example case 
+```python
+def some_long_func(id):
+    sleep(20)
+    print(id)
+
+policy_pool = PolicyThreadPoolFactory.get_policy_pool(policy=Policies.discard_oldest, max_q_size=1, max_workers=1)
+for i in range(6):
+    policy_pool.submit(target=some_long_func, args=(i, ))
+```
+The output will be 
+```
+0
+5
+```
+This is because at each iteration of submission we discarded the oldest worker in the pre work queue. 
+
+
+There are many reasons why policy behavior in general is useful. 
+For discard oldest policy as used in this example is usually useful when a new submission should take precedence 
+over an older one as the older one might be working off of stale data and preventing the new workers from running.
 
 ### Policies
-Each policy has two parameters:
-
-max_q_size is the max size of the pre work queue or the number of threads that can be queued up to run when possible
-
-max_workers is the max number of concurrently running threads
-
-#### Bounded Policy
-If a new submission takes place and all of the workers are full along with the pre work queue then this will raise a RuntimeError.
-
-[Example](https://github.com/alexanderepstein/policypools/blob/master/examples/BoundedPolicyExample.py)
 
 #### Discard Newest Policy
 If a new submission takes place and all of the workers are full along with the pre work queue then discard the newest submission from pre work queue.
 
-[Example](https://github.com/alexanderepstein/policypools/blob/master/examples/DiscardNewestPolicyExample.py)
 
 #### Discard Oldest Policy
 If a new submission takes place and all of the workers are full along with the pre work queue then discard the oldest submission from pre work queue.
 
-[Example](https://github.com/alexanderepstein/policypools/blob/master/examples/DiscardOldestPolicyExample.py)
-
-#### Infinite Policy
-All submissions should be successful, the queue size is infinite and the number of workers is based off of computer specs.
-
-[Example](https://github.com/alexanderepstein/policypools/blob/master/examples/InfinitePolicyExample.py)
-
-## Donate
-If this project helped you in any way and you feel like supporting me
-
-
-[![Donate](https://img.shields.io/badge/Donate-Venmo-blue.svg)](https://venmo.com/AlexanderEpstein)
-[![Donate](https://img.shields.io/badge/Donate-SquareCash-green.svg)](https://cash.me/$AlexEpstein)
-
-###### BTC: 38Q5VbH63MtouxHu8BuPNLzfY5B5RNVMDn
-###### ETH: 0xf7c60C06D298FF954917eA45206426f79d40Ac9D
-###### LTC: LWZ3T19YUk66dgkczN7dRhiXDMqSYrXUV4
-###### DSH: XpV1LtM5PvpfR9z5pYFZVmgcpLkDmrFAKM
-###### XRP: r4ZsnoHM94zMb2SCJ89fYzQqmGgozqLZF1
-###### XLM: GDN7WCUBAKLLUYENLUBM6LA647UAS5QTZDNV3QZMMMQLOJJKPJKACJ3H
+#### Discard This Policy
+If a new submission takes place and all of the workers are full along with the pre work queue then drop the submitted worker.
 
 ## License
 
