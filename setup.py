@@ -5,15 +5,15 @@ from setuptools import find_packages, setup
 
 # Package meta-data.
 NAME = 'policypools'
-DESCRIPTION = 'Provides thread pools with policies'
+DESCRIPTION = 'Provides thread and process pools with policies'
 URL = 'https://github.com/alexanderepstein/policypools'
-EMAIL = 'epsteina@wit.edu'
+EMAIL = 'alexanderepstein@tuta.io'
 AUTHOR = 'Alexander Epstein'
-VERSION = '0.0.10'
+VERSION = '0.0.11'
 
 long_description = "For information on this package refer to the github: %s" % URL
 # What packages are required for this module to be executed?
-required = ['six']
+required = []
 
 # Where the magic happens:
 setup(
