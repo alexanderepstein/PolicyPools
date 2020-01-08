@@ -1,7 +1,8 @@
-from policypools._process import DiscardOldestProcessPool, DiscardNewestProcessPool, DiscardThisProcessPool
-from policypools._thread import DiscardOldestThreadPool, DiscardNewestThreadPool, DiscardThisThreadPool
+from policypools.base import PolicyPool
+from policypools._process import DiscardNewestProcessPool, DiscardOldestProcessPool, DiscardThisProcessPool
+from policypools._thread import DiscardNewestThreadPool, DiscardOldestThreadPool, DiscardThisThreadPool
 
-__all__ = ['Policies', 'PolicyProcessPoolFactory', 'PolicyThreadPoolFactory']
+__all__ = ['Policies', 'PolicyPool', 'PolicyPoolFactory']
 
 
 class Policies:
@@ -9,50 +10,38 @@ class Policies:
     Class that holds all of the possible policies for the pools
     """
 
-    discard_oldest = "DiscardOldest"
     discard_newest = "DiscardNewest"
+    discard_oldest = "DiscardOldest"
     discard_this = "DiscardThis"
 
 
-class PolicyProcessPoolFactory:
+class PolicyPoolFactory:
     """
-    Factory class for providing different policy process pools
+    Factory class for providing different policy pools
     """
 
-    __policy_mapping = {Policies.discard_oldest: DiscardOldestProcessPool,
-                        Policies.discard_newest: DiscardNewestProcessPool,
-                        Policies.discard_this: DiscardThisProcessPool}
+    __process_policy_mapping = {Policies.discard_oldest: DiscardOldestProcessPool,
+                                Policies.discard_newest: DiscardNewestProcessPool,
+                                Policies.discard_this: DiscardThisProcessPool}
+
+    __thread_policy_mapping = {Policies.discard_oldest: DiscardOldestThreadPool,
+                               Policies.discard_newest: DiscardNewestThreadPool,
+                               Policies.discard_this: DiscardThisThreadPool}
 
     @staticmethod
-    def get_policy_pool(policy: str, max_q_size: int = 1, max_workers: int = 1):
+    def get_policy_pool(policy: str, pool_type: str = "thread", max_q_size: int = 1, max_workers: int = 1):
         """
-        Factory method for getting an instance of a process policy pool
+        Factory method for getting an instance of a policy pool
         :param policy: the policy to use for the desired pool
+        :param pool_type: the backend to use for the pool (only two options: thread or process)
         :param max_q_size: the max size of the queue for workers waiting to be run
         :param max_workers: the maximum number of concurrent running workers
-        :return: instance of a process policy pool
-        :rtype: PolicyProcessPool
+        :return: instance of a policy pool
+        :rtype: PolicyPool
         """
-        return PolicyProcessPoolFactory.__policy_mapping[policy](max_q_size, max_workers)
-
-
-class PolicyThreadPoolFactory:
-    """
-    Factory class for providing different policy thread pools
-    """
-
-    __policy_mapping = {Policies.discard_oldest: DiscardOldestThreadPool,
-                        Policies.discard_newest: DiscardNewestThreadPool,
-                        Policies.discard_this: DiscardThisThreadPool}
-
-    @staticmethod
-    def get_policy_pool(policy: str, max_q_size: int = 1, max_workers: int = 1):
-        """
-        Factory method for getting an instance of a thread policy pool
-        :param policy: the policy to use for the desired pool
-        :param max_q_size: the max size of the queue for workers waiting to be run
-        :param max_workers: the maximum number of concurrent running workers
-        :return: instance of a process policy pool
-        :rtype: ThreadProcessPool
-        """
-        return PolicyThreadPoolFactory.__policy_mapping[policy](max_q_size, max_workers)
+        if pool_type == "thread":
+            return PolicyPoolFactory.__thread_policy_mapping[policy](max_q_size, max_workers)
+        elif pool_type == "process":
+            return PolicyPoolFactory.__process_policy_mapping[policy](max_q_size, max_workers)
+        else:
+            raise ValueError("%s is not a valid pool type, the valid options are thread or process" % pool_type)
