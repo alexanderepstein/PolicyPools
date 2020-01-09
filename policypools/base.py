@@ -29,6 +29,9 @@ class PolicyPool(ABC):
         self.close()
         return False
 
+    def __del__(self):
+        self.close()
+
     def map(self, target, *iterable: iter):
         """
         Maps a target function across the iterable args using the specified policy pool
